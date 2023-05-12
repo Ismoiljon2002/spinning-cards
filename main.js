@@ -1,59 +1,85 @@
+const items = ["😤", "❌", "⛄️", "🦄", "😄", "🙈", "👻", "😻", "💵", "🥳", "🤩", "🍎"];
+let numberOfSpins = 3;
+const randomCommonValue = items[Math.floor(Math.random() * items.length)];
+let prevShuffledItems = [];
 
-const items = [
-    "🍭",
-    "❌",
-    "⛄️",
-    "🦄",
-    "🍌",
-    "💩",
-    "👻",
-    "😻",
-    "💵",
-    "🤡",
-    "🦖",
-    "🍎"
-];
+function getCommonValuedList(currentList) {
+    let tempItems = currentList;
+    const commonValueIndex = currentList.findIndex(el => el === randomCommonValue);
+    
+    tempItems = tempItems.filter(el => el !== randomCommonValue);
+    tempItems.unshift(randomCommonValue);
+    return tempItems;
+}
+
 document.querySelector(".info").textContent = items.join(" ");
-
 const doors = document.querySelectorAll(".door");
-document.querySelector("#spinner").addEventListener("click", spin);
-
+spinner.addEventListener("click", spin);
 
 function spin() {
-    let animationTime = 0;
+    if (numberOfSpins > 0) {
 
-    doors.forEach(door => {
-        door.innerHTML = "";
+        numberOfSpins--;
+        // Display remaining # of spins
+        numOfSpins.innerText = numberOfSpins;
 
-        const box = document.createElement('div');
-        box.classList.add('box');
+        let animationTime = 0;
 
-        for (const item of items) {
-            shuffledItems = shuffle(items);
-            const boxes = document.createElement('div');
-            boxes.classList.add('boxes');
-            boxes.innerHTML = item;
-            box.style.transform = `translateY(-${100 / (items.length) * (items.length - 1)}%)`;
-            box.appendChild(boxes);
-        }
+        doors.forEach(door => {
+            door.innerHTML = "";
 
-        let animationDuration = Math.random() * 2 + 1;
-        // while is used to stop spinning in order
-        // Turn it off to see random spinning stops
-        while (animationDuration < animationTime ) {
-            animationDuration = Math.random() * 3;
-        }
+            const box = document.createElement('div');
+            box.classList.add('box');
 
-        // Storing animation time of the previous element to stop
-        animationTime = animationDuration;
+            let currentShuffledItems = shuffle(items);
 
-        box.style.setProperty('--rotationDegree', `-${100 / (items.length) * (items.length - 1)}%`);
-        box.style.animation = `rotate ${animationDuration}s ease-in-out`;
-        box.style.transform = `translateY(0)`;
-        
-        door.appendChild(box);
-    });
+            if (numberOfSpins < 1) 
+                currentShuffledItems = getCommonValuedList(currentShuffledItems);
+            else 
+                while ( prevShuffledItems[0] === currentShuffledItems[0] ) {
+                    currentShuffledItems = shuffle(items);
+                }
 
+            prevShuffledItems = [...currentShuffledItems];
+            
+            for (const item of currentShuffledItems) {
+                const boxes = document.createElement('div');
+                boxes.classList.add('boxes');
+                boxes.innerHTML = item;
+                box.style.transform = `translateY(-${100 / (items.length) * (items.length - 1)}%)`;
+                box.appendChild(boxes);
+            }
+
+            // Below code is all about spinning animation
+
+            let animationDuration = Math.random() * 2 + 1;
+            // while is used to stop spinning in order
+            // Turn it off to see random spinning stops
+            while (animationDuration < animationTime) {
+                animationDuration = Math.random() * 3;
+            }
+
+            // Storing animation time of the previous element to stop
+            animationTime = animationDuration;
+
+            box.style.setProperty('--rotationDegree', `-${100 / (items.length) * (items.length - 1)}%`);
+            box.style.animation = `rotate ${animationDuration}s ease-in-out`;
+            box.style.transform = `translateY(0)`;
+
+            door.appendChild(box);
+            
+            
+        });
+    }
+    // Show congratulating message
+    if (numberOfSpins === 0) showCongrats()
+
+}
+
+function showCongrats () {
+    setTimeout(() => {
+        congrats.style.display = "flex";
+    }, 3000);
 }
 
 function rotate(box) {
